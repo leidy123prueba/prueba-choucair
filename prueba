@@ -1,0 +1,100 @@
+Option Explicit 
+'************************************************************************************************************************************
+'Nombre: Leidy Cortes
+'Descripción : Script que se encarga de realizar las pruebas correspondientes al módulo de servicios de la pagina https://www.choucairtesting.com 
+'			   de la siguiente manera:
+'			- Valida que los links e imagenes direccionen correctamente.
+'************************************************************************************************************************************
+'Garantiza que no hayan navegadores adicionales abiertos
+If browser_abierto() Then
+	Call cerrar_browsers_abierto()
+	MsgBox("Habían Browsers abiertos y fueron cerrados")
+End If
+
+Dim URL : URL = "https://www.choucairtesting.com"
+'Extrae de la data global el nombre del navegador
+Dim navegador : navegador = Ucase(Datatable("navegador",dtGlobalSheet))
+
+Dim execNav, temp
+
+'Se abre la página URL en el navegador requerido
+If navegador = "EXPLORER" Then execNav = "iexplore.exe"
+If navegador = "CHROME"   Then execNav = "chrome.exe"
+If navegador = "MOZILLA"  Then execNav = "firefox.exe"
+
+SystemUtil.Run execNav, URL, , , 3 'Abre la URL en el navegador indicado
+
+temp = 0
+Do 'Espera mientras no se abra el Browser
+    Wait 1
+    temp = temp + 1
+    If temp = 60 Then 'Si se alcanzó el WAIT_BROWSER segundos intenta abrir de nuevo el Browser:
+        SystemUtil.Run execNav, URL, , , 3 'Abre la URL en el navegador indicado
+        temp = 0 'El temp lo retorna a que inicie su valor en 0
+    End If
+Loop While Not browser_abierto()
+
+'Click en el menú servicios
+Browser("Choucair Testing").Page("Choucair Testing").Link("Servicios").Click
+
+Do	'Espera mientras no exista la imagen de Investigación
+	Wait 1
+Loop While Not Browser("Choucair Testing").Page("Servicios – Choucair Testing").Image("investigacion").Exist(0)
+Browser("Choucair Testing").Page("Servicios – Choucair Testing").Image("investigacion").Click
+'Se regresa a las opciones 
+Browser("Choucair Testing").Page("Servicios – Choucair Testing").WebElement("WebElement").Click
+
+Do	'Espera mientras no exista la imagen de Misión
+	Wait 1
+Loop While Not Browser("Choucair Testing").Page("Servicios – Choucair Testing").Image("mision").Exist(0)
+Browser("Choucair Testing").Page("Servicios – Choucair Testing").Image("mision").Click
+'Se regresa a las opciones 
+Browser("Choucair Testing").Page("Servicios – Choucair Testing").WebElement("WebElement").Click
+
+Do	'Espera mientras no exista la imagen de presentacion
+	Wait 1
+Loop While Not Browser("Choucair Testing").Page("Servicios – Choucair Testing").Image("presentacion").Exist(0)
+Browser("Choucair Testing").Page("Servicios – Choucair Testing").Image("presentacion").Click
+
+'Click en el link de Digital Performance Management
+Browser("Choucair Testing").Page("Servicios – Choucair Testing").Link("Digital Performance Management").Click
+'Regresa al menu principal de opciones de de presentacion
+Browser("Choucair Testing").Page("Servicios – Choucair Testing").WebElement("WebElement").Click
+
+Do	'Espera mientras no exista la imagen de presentacion
+	Wait 1
+Loop While Not Browser("Choucair Testing").Page("Servicios – Choucair Testing").Image("presentacion").Exist(0)
+Browser("Choucair Testing").Page("Servicios – Choucair Testing").Image("presentacion").Click
+
+'Click en la imagen Moviles
+Browser("Choucair Testing").Page("Servicios – Choucair Testing").Image("Moviles").Click
+'Regresa al menu principal de opciones de de presentacion
+Browser("Choucair Testing").Page("Servicios – Choucair Testing").WebElement("WebElement_2").Click
+
+
+'************************************************************************************************************************
+'Descripción: Método que indica si está abierto por lo menos un (1) Browser.
+'************************************************************************************************************************
+Function browser_abierto()
+
+    Dim oDesc, objs
+    
+    Set oDesc = Description.Create
+    oDesc("micclass").value = "Browser"
+    Set objs = Desktop.ChildObjects(oDesc)
+    browser_abierto = (objs.Count > 0)
+    Set objs  = Nothing 'Para liberar memoria
+    Set oDesc = Nothing 'Para liberar memoria
+
+End Function
+
+'************************************************************************************************************************
+'Descripción: Método que cierra TODOS los Browser abiertos.
+'************************************************************************************************************************
+Sub cerrar_browsers_abierto()
+
+    SystemUtil.CloseProcessByName "iexplore.exe"
+    SystemUtil.CloseProcessByName "chrome.exe"
+    SystemUtil.CloseProcessByName "firefox.exe"
+
+End Sub
